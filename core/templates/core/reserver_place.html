@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="section-title mb-4 text-center">Réserver une place pour le trajet {{ trajet.ville_depart }} → {{ trajet.ville_arrivee }}</h2>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <form method="post" class="card p-4 shadow rounded-4 bg-white" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-warm btn-lg rounded-3 w-100 mt-3">Réserver</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if reservation_success %}
+<!-- Toast Bootstrap positionné en bas à droite -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        ✅ Réservation effectuée avec succès !<br>
+        Notez la date et l'heure de départ : {{ date_depart }}.<br>
+        Une notification vous sera envoyée par mail ou SMS pour tout changement. Bon voyage !
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var toastEl = document.getElementById('successToast');
+    var toast = new bootstrap.Toast(toastEl, { delay: 10000 });
+    toast.show();
+  });
+</script>
+{% endif %}
+
+{% endblock %}

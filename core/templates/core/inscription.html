@@ -1,0 +1,64 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 section-title">Inscription Chauffeur</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow rounded-4 p-4 border-0">
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }} :</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_nom" class="form-label">Nom</label>
+                        {{ form.nom }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_prenom" class="form-label">Prénom</label>
+                        {{ form.prenom }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_telephone" class="form-label">Téléphone</label>
+                        {{ form.telephone }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email (facultatif)</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_experience_conduite" class="form-label">Années d'expérience</label>
+                        {{ form.experience_conduite }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_photo_permis" class="form-label">Photo du permis de conduire</label>
+                        {{ form.photo_permis }}
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warm btn-lg rounded-3">S'inscrire</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'accueil' %}" class="text-muted">← Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm border-0 p-4">
+        <h2 class="text-center text-orange mb-3">🚌 Publier un trajet</h2>
+        <p class="text-center text-muted">Remplissez les informations ci-dessous pour proposer votre trajet.</p>
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <!-- ✅ Aperçu image s’il y a une image sélectionnée -->
+          <div id="preview-container" class="mb-3 d-none">
+            <label class="form-label">Aperçu du véhicule :</label><br>
+            <img id="photo-preview" src="#" alt="Aperçu" class="img-fluid rounded shadow-sm" style="max-height: 200px;">
+          </div>
+
+          <button type="submit" class="btn btn-orange w-100 mt-3">🚀 Publier</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // JS pour afficher l'aperçu de la photo
+  const input = document.getElementById("id_photo_vehicule");
+  const previewContainer = document.getElementById("preview-container");
+  const previewImage = document.getElementById("photo-preview");
+
+  if (input) {
+    input.addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        previewImage.src = URL.createObjectURL(file);
+        previewContainer.classList.remove("d-none");
+      }
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<!-- Barre de recherche -->
+<section class="container mb-5">
+  <form method="get" action="." class="row g-3 align-items-end justify-content-center shadow-sm p-4 rounded bg-white">
+    <div class="col-md-4">
+      <label for="ville_depart" class="form-label">Ville de départ</label>
+      <input type="text" name="ville_depart" id="ville_depart" class="form-control" placeholder="Ex : Conakry" value="{{ request.GET.ville_depart }}">
+    </div>
+    <div class="col-md-4">
+      <label for="ville_arrivee" class="form-label">Ville d’arrivée</label>
+      <input type="text" name="ville_arrivee" id="ville_arrivee" class="form-control" placeholder="Ex : Labé" value="{{ request.GET.ville_arrivee }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-warm w-100">Rechercher</button>
+    </div>
+  </form>
+</section>
+
+<!-- Résultats de la recherche -->
+<section class="container">
+  {% if trajets %}
+    <h2 class="text-center mb-4">Résultats de la recherche</h2>
+    <div class="row">
+      {% for trajet in trajets %}
+        <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
+          <div class="card shadow-sm h-100 border border-1">
+            <div class="d-flex justify-content-between align-items-center p-2">
+              <div class="flex-grow-1">
+                <h6 class="fw-bold text-dark mb-1">{{ trajet.ville_depart }} → {{ trajet.ville_arrivee }}</h6>
+                <small class="text-muted d-block mb-1">{{ trajet.date_heure_depart|date:"d/m/y H\\hi" }}mn</small>
+                <small><strong>Places :</strong> {{ trajet.places_disponibles }}</small><br>
+                <small><strong>Prix :</strong> {{ trajet.prix }} GNF</small>
+                {% if trajet.commentaire %}
+                  <p class="mt-2 small text-muted">{{ trajet.commentaire }}</p>
+                {% endif %}
+                <a href="{% url 'reserver_place' trajet.id %}" class="btn btn-sm btn-warm w-100 mt-2">Réserver</a>
+              </div>
+              <div class="ms-2">
+              {% if trajet.photo_vehicule %}
+                <img src="{{ trajet.photo_vehicule.url }}" alt="Photo véhicule" class="rounded" style="width: 80px; height: 60px; object-fit: cover;">
+              {% else %}
+                <img src="/media/vehicules/default_voiture.jpeg" alt="Photo par défaut" class="rounded" style="width: 80px; height: 60px; object-fit: cover;">
+              {% endif %}
+
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination Bootstrap -->
+    <div class="d-flex justify-content-center mt-4">
+      <nav>
+        <ul class="pagination">
+          {% if trajets.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ trajets.previous_page_number }}{% if request.GET.ville_depart %}&ville_depart={{ request.GET.ville_depart }}{% endif %}{% if request.GET.ville_arrivee %}&ville_arrivee={{ request.GET.ville_arrivee }}{% endif %}">Précédent</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Précédent</span>
+            </li>
+          {% endif %}
+
+          {% for num in trajets.paginator.page_range %}
+            {% if trajets.number == num %}
+              <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.ville_depart %}&ville_depart={{ request.GET.ville_depart }}{% endif %}{% if request.GET.ville_arrivee %}&ville_arrivee={{ request.GET.ville_arrivee }}{% endif %}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if trajets.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ trajets.next_page_number }}{% if request.GET.ville_depart %}&ville_depart={{ request.GET.ville_depart }}{% endif %}{% if request.GET.ville_arrivee %}&ville_arrivee={{ request.GET.ville_arrivee }}{% endif %}">Suivant</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Suivant</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  {% else %}
+    <p class="text-center fst-italic text-muted">Aucun trajet trouvé pour cette recherche.</p>
+  {% endif %}
+</section>
+
+{% endblock %}

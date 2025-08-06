@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+  <div class="col-md-6">
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center text-orange mb-3">🧾 Vérification du code conducteur</h2>
+      <p class="text-center text-muted mb-4">
+        Saisissez le <strong>code unique</strong> généré lors de votre inscription pour pouvoir publier un trajet.
+      </p>
+
+      {% if erreur %}
+        <div class="alert alert-danger">{{ erreur }}</div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <!-- ✅ Champ caché pour transmettre la page suivante -->
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="mb-3">
+          <label for="code" class="form-label">Code unique</label>
+          <input type="text" id="code" name="code" class="form-control" required autofocus>
+        </div>
+
+        <button type="submit" class="btn btn-orange w-100">✔️ Valider</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

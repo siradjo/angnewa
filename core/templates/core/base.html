@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>AngnéWa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            color: #222 !important;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            color: #222 !important;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #e09e00 !important;
+        }
+
+        .nav-link.active {
+            color: #e09e00 !important;
+            border-bottom: 2px solid #e09e00;
+        }
+
+        /* Boutons style warm orange dégradé */
+        .btn-warm, .btn-orange {
+            background: linear-gradient(45deg, #f2b807, #e08900);
+            color: white;
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(226,137,0,0.4);
+            transition: background 0.3s ease;
+            border-radius: 0.5rem;
+        }
+
+        .btn-warm:hover, .btn-orange:hover {
+            background: linear-gradient(45deg, #e08900, #c07200);
+            box-shadow: 0 6px 12px rgba(192,114,0,0.6);
+            color: white;
+        }
+
+        /* FORMULAIRES - INPUTS, SELECTS, TEXTAREAS */
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="tel"],
+        form input[type="datetime-local"],
+        form select,
+        form textarea {
+            border: 2px solid #f2b807;
+            border-radius: 0.5rem;
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        form input:focus,
+        form select:focus,
+        form textarea:focus {
+            border-color: #e08900;
+            box-shadow: 0 0 0 0.2rem rgba(224, 137, 0, 0.25);
+            outline: none;
+        }
+
+        /* pour boutons submit et autres boutons dans les formulaires */
+        form button[type="submit"],
+        form .btn {
+            background: linear-gradient(45deg, #f2b807, #e08900);
+            border: none;
+            font-weight: 600;
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(226,137,0,0.4);
+            transition: background 0.3s ease;
+            cursor: pointer;
+        }
+
+        form button[type="submit"]:hover,
+        form .btn:hover {
+            background: linear-gradient(45deg, #e08900, #c07200);
+            color: white;
+        }
+
+        .section-title {
+            color: #e09e00;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-bottom: 3px solid #e09e00;
+            padding-bottom: 0.3rem;
+            display: inline-block;
+        }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 0.3rem 0.6rem rgba(224,158,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.6rem 1rem rgba(224,158,0,0.4);
+        }
+
+        footer {
+            background-color: #f9f7f1;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        form {
+            background-color: #fff8e1; /* beige très clair, chaleureux */
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0.3rem 0.6rem rgba(224, 158, 0, 0.15);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg px-3">
+  <a class="navbar-brand" href="/">🚖 AngnéWa</a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon" style="filter: invert(0);"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'accueil' %}active{% endif %}" href="{% url 'accueil' %}">Accueil</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'rechercher_trajet' %}active{% endif %}" href="{% url 'rechercher_trajet' %}">Trouver un trajet</a>
+      </li>
+
+      <li class="nav-item">
+        {% if request.session.conducteur_id %}
+          <a class="nav-link {% if request.resolver_match.url_name == 'publier_trajet' %}active{% endif %}" href="{% url 'publier_trajet' %}">Publier un trajet</a>
+        {% else %}
+          <a class="nav-link {% if request.resolver_match.url_name == 'verifier_code' and request.GET.next != 'suivre' %}active{% endif %}" href="{% url 'verifier_code' %}?next=publier_trajet">Publier un trajet</a>
+        {% endif %}
+      </li>
+
+      <li class="nav-item">
+        {% if request.session.conducteur_id %}
+          <a class="nav-link {% if request.resolver_match.url_name == 'suivre_trajet' %}active{% endif %}" href="{% url 'suivre_trajet' %}">Suivre mon trajet</a>
+        {% else %}
+          <a class="nav-link {% if request.resolver_match.url_name == 'verifier_code' and request.GET.next == 'suivre' %}active{% endif %}" href="{% url 'verifier_code' %}?next=suivre">Suivre mon trajet</a>
+        {% endif %}
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {% if request.resolver_match.url_name == 'inscription' %}active{% endif %}" href="{% url 'inscription' %}">S'inscrire</a>
+      </li>
+
+      {% if request.session.conducteur_id %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'deconnexion' %}">Se déconnecter</a>
+      </li>
+      {% endif %}
+
+    </ul>
+  </div>
+</nav>
+
+
+    <main class="container mt-4">
+        {% block content %}
+        {% endblock %}
+
+        {% if messages %}
+        <div class="mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </main>
+
+    <footer class="text-center py-3 mt-5">
+        <small>&copy; 2025 AngnéWa - Tous droits réservés</small>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

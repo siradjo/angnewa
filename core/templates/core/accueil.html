@@ -1,0 +1,123 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="text-center py-5 mb-5 bg-light rounded shadow-sm">
+  <h1 class="display-5 fw-bold text-dark">Bienvenue sur <span style="color: #e09e00;">AngnéWa</span></h1>
+  <p class="lead mt-3 mx-auto" style="max-width: 700px;">
+    AngnéWa vous aide à trouver rapidement un trajet ou à publier votre voyage. Simple, rapide et fiable.
+  </p>
+  <div class="mt-4">
+    <a href="{% url 'rechercher_trajet' %}" class="btn btn-warm me-3">Trouver un trajet</a>
+    <a href="{% url 'verifier_code' %}" class="btn btn-outline-dark">Publier un trajet</a>
+  </div>
+</section>
+
+<!-- Comment ça marche -->
+<section class="mb-5">
+  <h2 class="section-title text-center">Comment ça marche ?</h2>
+  <div class="row text-center mt-4">
+    <div class="col-md-4">
+      <div class="p-3">
+        <h5 class="text-dark">1. Trouvez un trajet</h5>
+        <p class="text-muted">Recherchez un trajet par région, date ou ville de départ.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3">
+        <h5 class="text-dark">2. Réservez</h5>
+        <p class="text-muted">Réservez votre place en saisissant votre numéro de téléphone.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3">
+        <h5 class="text-dark">3. Publiez un trajet</h5>
+        <p class="text-muted">Chauffeurs ? Inscrivez-vous et publiez votre prochain voyage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Barre de recherche -->
+<section class="container mb-5">
+  <form method="get" action="." class="row g-3 align-items-end justify-content-center shadow-sm p-4 rounded bg-white">
+    <div class="col-md-4">
+      <label for="ville_depart" class="form-label">Ville de départ</label>
+      <input type="text" name="ville_depart" id="ville_depart" class="form-control" placeholder="Ex : Conakry" value="{{ request.GET.ville_depart }}">
+    </div>
+    <div class="col-md-4">
+      <label for="ville_arrivee" class="form-label">Ville d’arrivée</label>
+      <input type="text" name="ville_arrivee" id="ville_arrivee" class="form-control" placeholder="Ex : Labé" value="{{ request.GET.ville_arrivee }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-warm w-100">Rechercher</button>
+    </div>
+  </form>
+</section>
+
+<!-- Résultats ou trajets disponibles -->
+<section class="container">
+  {% if trajets %}
+    <h2 class="text-center mb-4">Résultats de la recherche</h2>
+    <div class="row">
+      {% for trajet in trajets %}
+        <div class="col-sm-6 col-md-4 col-lg-3 mb-3">
+          <div class="card shadow-sm h-100 border border-1">
+            <div class="card-body p-2">
+              <h6 class="fw-bold text-dark mb-1">{{ trajet.ville_depart }} → {{ trajet.ville_arrivee }}</h6>
+              <small class="text-muted d-block mb-1">
+                {{ trajet.date_heure_depart|date:"d/m/y H\\h i\\m\\n" }}
+              </small>
+              <small><strong>Places :</strong> {{ trajet.places_disponibles }}</small><br>
+              <small><strong>Prix :</strong> {{ trajet.prix }} GNF</small>
+              <a href="{% url 'reserver_place' trajet.id %}" class="btn btn-sm btn-warm w-100 mt-2">Réserver</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination Bootstrap -->
+    <div class="d-flex justify-content-center mt-4">
+      <nav>
+        <ul class="pagination">
+          {% if trajets.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ trajets.previous_page_number }}{% if request.GET.ville_depart %}&ville_depart={{ request.GET.ville_depart }}{% endif %}{% if request.GET.ville_arrivee %}&ville_arrivee={{ request.GET.ville_arrivee }}{% endif %}">Précédent</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Précédent</span>
+            </li>
+          {% endif %}
+
+          {% for num in trajets.paginator.page_range %}
+            {% if trajets.number == num %}
+              <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.ville_depart %}&ville_depart={{ request.GET.ville_depart }}{% endif %}{% if request.GET.ville_arrivee %}&ville_arrivee={{ request.GET.ville_arrivee }}{% endif %}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if trajets.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ trajets.next_page_number }}{% if request.GET.ville_depart %}&ville_depart={{ request.GET.ville_depart }}{% endif %}{% if request.GET.ville_arrivee %}&ville_arrivee={{ request.GET.ville_arrivee }}{% endif %}">Suivant</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Suivant</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+
+  {% else %}
+    <p class="text-center text-muted fst-italic">Aucun trajet trouvé pour le moment.</p>
+  {% endif %}
+</section>
+{% endblock %}

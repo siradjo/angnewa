@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+  <div class="col-md-6">
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center mb-3 text-orange">🔐 Connexion au tableau de bord</h2>
+      <p class="text-center text-muted mb-4">Veuillez saisir votre <strong>code unique</strong> pour gérer vos trajets publiés.</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <input type="text" name="code_unique" placeholder="Ex. AGNW-2025-XXXX" class="form-control form-control-lg text-center border-orange" required>
+        </div>
+        <button type="submit" class="btn btn-orange w-100">🔓 Accéder</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">✏️ Modifier le trajet</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+    <a href="{% url 'suivre_trajet' %}" class="btn btn-secondary">↩️ Annuler</a>
+  </form>
+</div>
+{% endblock %}

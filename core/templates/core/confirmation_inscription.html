@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow rounded-4 p-5 text-center border-0">
+                <h2 class="mb-4 text-success fw-bold">Inscription réussie !</h2>
+
+                <p class="fs-5">
+                    Merci de vous être inscrit sur <strong>AngnéWa</strong>.
+                    <br>Voici votre <strong>code unique</strong> à conserver précieusement :
+                </p>
+
+                <div class="display-5 fw-bold text-primary border border-2 rounded-3 py-2 px-4 bg-light d-inline-block my-4">
+                    {{ code }}
+                </div>
+
+                <p class="text-muted">Ce code vous permettra de publier et gérer vos trajets plus tard.</p>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{% url 'accueil' %}" class="btn btn-warm btn-lg rounded-3">
+                        Revenir à l'accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
