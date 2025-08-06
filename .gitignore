@@ -1,2 +1,29 @@
-".env" 
-".env.dev" 
+# Fichiers Python
+*.pyc
+__pycache__/
+
+# Environnement virtuel
+venv/
+.env
+*.env
+
+# Fichiers de base de données
+*.sqlite3
+
+# Fichiers VSCode
+.vscode/
+
+# Fichiers temporaires
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.swp
+
+# Fichiers collectés statiques ou médias
+/staticfiles/
+/media/
+
+# Migrations inutiles (optionnel)
+*/migrations/__pycache__/
