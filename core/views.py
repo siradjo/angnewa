@@ -33,7 +33,7 @@ def accueil(request):
     else:
         trajets = Trajet.objects.all()
 
-    # ✅ Ajout d'un tri explicite pour éviter le warning
+    # Ajout d'un tri explicite sur la date de départ puis sur l'id pour garantir l'ordre
     trajets = trajets.order_by('-date_heure_depart', '-id')
 
     paginator = Paginator(trajets, 8)
@@ -41,7 +41,7 @@ def accueil(request):
     trajets_page = paginator.get_page(page)
 
     return render(request, 'core/accueil.html', {'trajets': trajets_page})
-    
+
 # 👤 Inscription chauffeur
 def inscription(request):
     if request.method == 'POST':
