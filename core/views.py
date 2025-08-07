@@ -154,7 +154,7 @@ def rechercher_trajet(request):
     ville_depart = request.GET.get('ville_depart')
     ville_arrivee = request.GET.get('ville_arrivee')
 
-    trajets = Trajet.objects.all().order_by('date_depart')  # OU order_by('id')
+    trajets = Trajet.objects.all().order_by('id')  # <- Ordre explicite garanti
 
     if ville_depart:
         trajets = trajets.filter(ville_depart__icontains=ville_depart)
