@@ -10,7 +10,8 @@ environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=False)
-ALLOWED_HOSTS = ['angnewa.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1').split(',')
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
