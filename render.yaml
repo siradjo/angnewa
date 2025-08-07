@@ -3,11 +3,11 @@ services:
     name: angnewa
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn angnewa.wsgi:application"
+    startCommand: "gunicorn angnewa.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: angnewa.onrender.com
+        value: angnewa.onrender.com,127.0.0.1,localhost
       - key: SECRET_KEY
-        value: "une-cle-secrete-solide-à-mettre-ici"
+        value: "4p9k7g$2d^x!q8szr#0nmf@l%twvjub$ayce5ohxq*1rgsn6"
