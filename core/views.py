@@ -21,7 +21,6 @@ def accueil(request):
     ville_arrivee = request.GET.get('ville_arrivee', '')
 
     try:
-        # Applique le filtre
         trajets = Trajet.objects.all()
 
         if ville_depart:
@@ -29,8 +28,8 @@ def accueil(request):
         if ville_arrivee:
             trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
 
-        # Applique un ordre strict avant la pagination
-        trajets = trajets.order_by('-date_heure_depart', '-id')
+        # Tri sécurisé
+        trajets = trajets.order_by('-id')  # Assure-toi que le champ existe et n’est jamais null
 
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
@@ -45,9 +44,8 @@ def accueil(request):
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
 
     except Exception as e:
-    logger.error(f"Erreur dans la vue accueil : {str(e)}")
-    return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
-print(f"Erreur dans la vue accueil : {str(e)}")
+        logger.error(f"Erreur dans la vue accueil : {str(e)}")
+        return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
 
 
 
