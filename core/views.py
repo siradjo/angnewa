@@ -6,18 +6,12 @@ from django.db.models import F, Q
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
-from .models import Utilisateur, Trajet, StatistiqueTrajet, Reservation
-from django.utils.dateformat import format as date_format
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from .models import Utilisateur, Trajet, Reservation, StatistiqueTrajet
-from .forms import (
-    InscriptionChauffeurForm,
-    CodeVerificationForm,
-    TrajetForm,
-    ReservationForm,
-)
+from django.utils.dateformat import format as date_format
+
+from .models import Utilisateur, Trajet, StatistiqueTrajet, Reservation
+from .forms import InscriptionChauffeurForm, CodeVerificationForm, TrajetForm, ReservationForm
+
 
 # 🏠 Page d'accueil
 def accueil(request):
@@ -48,7 +42,7 @@ def inscription(request):
         form = InscriptionChauffeurForm(request.POST, request.FILES)
         if form.is_valid():
             utilisateur = form.save(commit=False)
-            utilisateur.code_unique = str(uuid.uuid4())[:8]
+            utilisateur.code_unique = uuid.uuid4().hex[:8].upper()
             utilisateur.save()
             return render(request, 'core/confirmation_inscription.html', {'code': utilisateur.code_unique})
     else:
