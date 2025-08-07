@@ -3,7 +3,7 @@ services:
     name: angnewa
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn angnewa.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: gunicorn angnewa.wsgi:application --bind 0.0.0.0:10000 --env DJANGO_SETTINGS_MODULE=angnewa.settings_production
     envVars:
       - key: DEBUG
         value: "False"
