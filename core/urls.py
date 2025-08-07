@@ -1,5 +1,10 @@
 from django.urls import path
 from . import views
+from django.http import HttpResponse
+
+def accueil(request):
+    return HttpResponse("Bienvenue sur Angnewa !")
+
 
 urlpatterns = [
     path('', views.accueil, name='accueil'),
