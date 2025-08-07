@@ -19,7 +19,7 @@ DEBUG = env('DEBUG')
 # ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 # ALLOWED_HOSTS = ['angnewa.onrender.com', 'localhost', '127.0.0.1']
 #ALLOWED_HOSTS = ['angnewa.onrender.com']
-ALLOWED_HOSTS = ['angnewa.onrender.com', 'localhost', '127.0.0.1',]
+ALLOWED_HOSTS = ['*']
 
 # Applications installées
 INSTALLED_APPS = [
