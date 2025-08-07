@@ -11,6 +11,8 @@ from django.utils.dateformat import format as date_format
 from django.http import HttpResponseServerError
 from .models import Utilisateur, Trajet, StatistiqueTrajet, Reservation
 from .forms import InscriptionChauffeurForm, CodeVerificationForm, TrajetForm, ReservationForm
+import logging
+logger = logging.getLogger(__name__)
 
 
 # 🏠 Page d'accueil
@@ -43,7 +45,11 @@ def accueil(request):
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
 
     except Exception as e:
-        return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
+    logger.error(f"Erreur dans la vue accueil : {str(e)}")
+    return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
+print(f"Erreur dans la vue accueil : {str(e)}")
+
+
 
 # 👤 Inscription chauffeur
 def inscription(request):
