@@ -1,1 +1,2 @@
-web: gunicorn angnewa.wsgi
+web: gunicorn angnewa.wsgi:application
+
