@@ -5,21 +5,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialisation d'environ
 env = environ.Env(
-    DEBUG=(bool, True)
+    DEBUG=(bool, False)
 )
 
-# Chargement du fichier .env
+# Chargement du fichier .env s’il existe
 env_file = BASE_DIR / ".env"
 if env_file.exists():
     environ.Env.read_env(env_file)
 
 # Sécurité
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-fake-key-dev')
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-fake-key')
 DEBUG = env('DEBUG')
-# ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
-# ALLOWED_HOSTS = ['angnewa.onrender.com', 'localhost', '127.0.0.1']
-#ALLOWED_HOSTS = ['angnewa.onrender.com']
-ALLOWED_HOSTS = ['*']
+
+# Gestion des hôtes autorisés
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 # Applications installées
 INSTALLED_APPS = [
@@ -34,7 +33,6 @@ INSTALLED_APPS = [
 
 # Middlewares
 MIDDLEWARE = [
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,10 +61,10 @@ TEMPLATES = [{
 
 WSGI_APPLICATION = 'angnewa.wsgi.application'
 
-# Base de données (SQLite en local, PostgreSQL en production)
+# Base de données (PostgreSQL sur Render, SQLite en local)
 if env('DATABASE_URL', default=None):
     DATABASES = {
-        'default': env.db(),  # lit la variable DATABASE_URL automatiquement
+        'default': env.db(),
     }
 else:
     DATABASES = {
@@ -75,7 +73,6 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
 
 # Validation des mots de passe
 AUTH_PASSWORD_VALIDATORS = [
@@ -94,21 +91,21 @@ USE_TZ = True
 # Fichiers statiques
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"  # Ajouté pour Render ou production
+STATIC_ROOT = BASE_DIR / "staticfiles"  # utile pour Render
 
-# Fichiers média (upload)
+# Fichiers média
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Modèle utilisateur personnalisé
 AUTH_USER_MODEL = 'core.Utilisateur'
 
-# Sécurité HTTPS (production uniquement)
+# Sécurité production (Render)
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 3600  # à augmenter si besoin
+    SECURE_HSTS_SECONDS = 3600
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_BROWSER_XSS_FILTER = True

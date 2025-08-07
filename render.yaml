@@ -6,6 +6,8 @@ services:
     startCommand: "gunicorn angnewa.wsgi:application"
     envVars:
       - key: DEBUG
-        value: false
+        value: "False"
       - key: ALLOWED_HOSTS
         value: angnewa.onrender.com
+      - key: SECRET_KEY
+        value: "une-cle-secrete-solide-à-mettre-ici"
