@@ -1,5 +1,6 @@
 from pathlib import Path
 import environ
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -18,7 +19,9 @@ SECRET_KEY = env('SECRET_KEY', default='django-insecure-fake-key')
 DEBUG = env('DEBUG')
 
 # Gestion des hôtes autorisés
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
+
 
 # Applications installées
 INSTALLED_APPS = [
