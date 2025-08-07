@@ -181,6 +181,7 @@ def rechercher_trajet(request):
         trajets_page = paginator.page(paginator.num_pages)
 
     return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
+    
 # 📍 Suivi de trajet
 def suivre_trajet(request):
     conducteur_id = request.session.get('conducteur_id')
