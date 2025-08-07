@@ -21,15 +21,17 @@ def accueil(request):
     ville_arrivee = request.GET.get('ville_arrivee', '')
 
     try:
-        trajets = Trajet.objects.all()
+        # Filtrage conditionnel
+        if ville_depart or ville_arrivee:
+            trajets = Trajet.objects.filter(
+                Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
+                Q(ville_arrivee__icontains=ville_arrivee) if ville_arrivee else Q()
+            )
+        else:
+            trajets = Trajet.objects.all()
 
-        if ville_depart:
-            trajets = trajets.filter(ville_depart__icontains=ville_depart)
-        if ville_arrivee:
-            trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
-
-        # Tri sécurisé
-        trajets = trajets.order_by('-id')  # Assure-toi que le champ existe et n’est jamais null
+        # Ordre explicite avant la pagination
+        trajets = trajets.order_by('-date_heure_depart', '-id')
 
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
@@ -42,11 +44,10 @@ def accueil(request):
             trajets_page = paginator.page(paginator.num_pages)
 
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
-
+    
     except Exception as e:
         logger.error(f"Erreur dans la vue accueil : {str(e)}")
         return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
-
 
 
 # 👤 Inscription chauffeur
@@ -175,7 +176,7 @@ def rechercher_trajet(request):
         if ville_arrivee:
             trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
 
-        # Ajoute un ordre strict pour éviter le warning
+        # Appliquer le tri juste avant la pagination
         trajets = trajets.order_by('-date_heure_depart', '-id')
 
         paginator = Paginator(trajets, 8)
@@ -191,6 +192,7 @@ def rechercher_trajet(request):
         return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
 
     except Exception as e:
+        logger.error(f"Erreur dans la vue accueil : {str(e)}")
         return HttpResponseServerError("Erreur serveur lors de la recherche.")
 
 # 📍 Suivi de trajet
