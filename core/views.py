@@ -28,9 +28,12 @@ def accueil(request):
         trajets = Trajet.objects.filter(
             Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
             Q(ville_arrivee__icontains=ville_arrivee) if ville_arrivee else Q()
-        ).order_by('-date_heure_depart')
+        )
     else:
-        trajets = Trajet.objects.all().order_by('-date_heure_depart')
+        trajets = Trajet.objects.all()
+
+    # Toujours trier le QuerySet avant la pagination
+    trajets = trajets.order_by('-date_heure_depart')
 
     paginator = Paginator(trajets, 8)
     page = request.GET.get('page')
@@ -43,6 +46,7 @@ def accueil(request):
         trajets_page = paginator.page(paginator.num_pages)
 
     return render(request, 'core/accueil.html', {'trajets': trajets_page})
+    
 # 👤 Inscription chauffeur
 def inscription(request):
     if request.method == 'POST':
