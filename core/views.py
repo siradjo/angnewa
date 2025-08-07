@@ -18,7 +18,6 @@ def accueil(request):
     ville_depart = request.GET.get('ville_depart', '')
     ville_arrivee = request.GET.get('ville_arrivee', '')
 
-    # Recherche avec filtre
     if ville_depart or ville_arrivee:
         trajets = Trajet.objects.filter(
             Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
@@ -27,7 +26,7 @@ def accueil(request):
     else:
         trajets = Trajet.objects.all()
 
-    # Ajout d'un tri explicite sur la date de départ puis sur l'id pour garantir l'ordre
+    # Ordre explicite obligatoire avant pagination !
     trajets = trajets.order_by('-date_heure_depart', '-id')
 
     paginator = Paginator(trajets, 8)
@@ -36,18 +35,6 @@ def accueil(request):
 
     return render(request, 'core/accueil.html', {'trajets': trajets_page})
 
-# 👤 Inscription chauffeur
-def inscription(request):
-    if request.method == 'POST':
-        form = InscriptionChauffeurForm(request.POST, request.FILES)
-        if form.is_valid():
-            utilisateur = form.save(commit=False)
-            utilisateur.code_unique = uuid.uuid4().hex[:8].upper()
-            utilisateur.save()
-            return render(request, 'core/confirmation_inscription.html', {'code': utilisateur.code_unique})
-    else:
-        form = InscriptionChauffeurForm()
-    return render(request, 'core/inscription.html', {'form': form})
 
 # 🔐 Vérification code (vue unifiée)
 def verifier_code(request):
@@ -181,7 +168,7 @@ def rechercher_trajet(request):
         trajets_page = paginator.page(paginator.num_pages)
 
     return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
-    
+
 # 📍 Suivi de trajet
 def suivre_trajet(request):
     conducteur_id = request.session.get('conducteur_id')
