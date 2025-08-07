@@ -21,9 +21,10 @@ from .forms import (
 
 # 🏠 Page d'accueil
 def accueil(request):
-    ville_depart = request.GET.get('ville_depart')
-    ville_arrivee = request.GET.get('ville_arrivee')
+    ville_depart = request.GET.get('ville_depart', '')
+    ville_arrivee = request.GET.get('ville_arrivee', '')
 
+    # Recherche avec filtre
     if ville_depart or ville_arrivee:
         trajets = Trajet.objects.filter(
             Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
@@ -32,18 +33,12 @@ def accueil(request):
     else:
         trajets = Trajet.objects.all()
 
-    # Toujours trier le QuerySet avant la pagination
-    trajets = trajets.order_by('-date_heure_depart')
+    # ✅ Ajout d'un tri explicite pour éviter le warning
+    trajets = trajets.order_by('-date_heure_depart', '-id')
 
     paginator = Paginator(trajets, 8)
     page = request.GET.get('page')
-
-    try:
-        trajets_page = paginator.page(page)
-    except PageNotAnInteger:
-        trajets_page = paginator.page(1)
-    except EmptyPage:
-        trajets_page = paginator.page(paginator.num_pages)
+    trajets_page = paginator.get_page(page)
 
     return render(request, 'core/accueil.html', {'trajets': trajets_page})
     
