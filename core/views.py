@@ -151,14 +151,24 @@ def reserver_place(request, trajet_id):
 
 # 🔍 Recherche de trajets
 def rechercher_trajet(request):
-    ville_depart = request.GET.get('ville_depart')
-    ville_arrivee = request.GET.get('ville_arrivee')
+    ville_depart = request.GET.get('ville_depart', '').strip()
+    ville_arrivee = request.GET.get('ville_arrivee', '').strip()
 
     trajets = Trajet.objects.all()
-    if ville_depart:
+
+    # Filtrage conditionnel avec Q pour plus de clarté
+    if ville_depart and ville_arrivee:
+        trajets = trajets.filter(
+            Q(ville_depart__icontains=ville_depart),
+            Q(ville_arrivee__icontains=ville_arrivee)
+        )
+    elif ville_depart:
         trajets = trajets.filter(ville_depart__icontains=ville_depart)
-    if ville_arrivee:
+    elif ville_arrivee:
         trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
+
+    # Ajout d'un ordre pour éviter les warnings liés à la pagination
+    trajets = trajets.order_by('-date_heure_depart', '-id')
 
     paginator = Paginator(trajets, 12)
     page = request.GET.get('page')
@@ -171,8 +181,6 @@ def rechercher_trajet(request):
         trajets_page = paginator.page(paginator.num_pages)
 
     return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
-
-
 # 📍 Suivi de trajet
 def suivre_trajet(request):
     conducteur_id = request.session.get('conducteur_id')
