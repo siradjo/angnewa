@@ -193,6 +193,7 @@ def rechercher_trajet(request):
         # En cas d'erreur serveur, afficher une erreur 500
         return HttpResponseServerError("Erreur serveur lors de la recherche de trajets.")
         
+        
 # 📍 Suivi de trajet
 def suivre_trajet(request):
     conducteur_id = request.session.get('conducteur_id')
