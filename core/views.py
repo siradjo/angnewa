@@ -8,7 +8,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.utils.dateformat import format as date_format
-
+from django.http import HttpResponseServerError
 from .models import Utilisateur, Trajet, StatistiqueTrajet, Reservation
 from .forms import InscriptionChauffeurForm, CodeVerificationForm, TrajetForm, ReservationForm
 
@@ -18,23 +18,35 @@ def accueil(request):
     ville_depart = request.GET.get('ville_depart', '')
     ville_arrivee = request.GET.get('ville_arrivee', '')
 
-    # Recherche avec filtre
-    if ville_depart or ville_arrivee:
-        trajets = Trajet.objects.filter(
-            Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
-            Q(ville_arrivee__icontains=ville_arrivee) if ville_arrivee else Q()
-        )
-    else:
-        trajets = Trajet.objects.all()
+    try:
+        # Recherche avec filtre conditionnel
+        if ville_depart or ville_arrivee:
+            trajets = Trajet.objects.filter(
+                Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
+                Q(ville_arrivee__icontains=ville_arrivee) if ville_arrivee else Q()
+            )
+        else:
+            trajets = Trajet.objects.all()
 
-    # Ajout d'un tri explicite sur la date de départ puis sur l'id pour garantir l'ordre
-    trajets = trajets.order_by('-date_heure_depart', '-id')
+        # Tri explicite pour éviter warning pagination
+        trajets = trajets.order_by('-date_heure_depart', '-id')
 
-    paginator = Paginator(trajets, 8)
-    page = request.GET.get('page')
-    trajets_page = paginator.get_page(page)
+        paginator = Paginator(trajets, 8)
+        page = request.GET.get('page')
 
-    return render(request, 'core/accueil.html', {'trajets': trajets_page})
+        try:
+            trajets_page = paginator.page(page)
+        except PageNotAnInteger:
+            trajets_page = paginator.page(1)
+        except EmptyPage:
+            trajets_page = paginator.page(paginator.num_pages)
+
+        return render(request, 'core/accueil.html', {'trajets': trajets_page})
+
+    except Exception as e:
+        # Log l'erreur ou gère-la comme tu souhaites (ici simple message 500)
+        # tu peux utiliser logging.error(str(e)) si tu as configuré un logger
+        return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
     
 # 👤 Inscription chauffeur
 def inscription(request):
