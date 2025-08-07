@@ -15,22 +15,20 @@ from .forms import InscriptionChauffeurForm, CodeVerificationForm, TrajetForm, R
 
 # 🏠 Page d'accueil
 def accueil(request):
-    ville_depart = request.GET.get('ville_depart', '')
-    ville_arrivee = request.GET.get('ville_arrivee', '')
+    ville_depart = request.GET.get('ville_depart', '').strip()
+    ville_arrivee = request.GET.get('ville_arrivee', '').strip()
 
     try:
-        # Recherche avec filtre conditionnel
-        if ville_depart or ville_arrivee:
-            trajets = Trajet.objects.filter(
-                Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
-                Q(ville_arrivee__icontains=ville_arrivee) if ville_arrivee else Q()
-            )
-        else:
-            trajets = Trajet.objects.all()
+        # Construction du filtre de recherche
+        filtres = Q()
+        if ville_depart:
+            filtres &= Q(ville_depart__icontains=ville_depart)
+        if ville_arrivee:
+            filtres &= Q(ville_arrivee__icontains=ville_arrivee)
 
-        # Tri explicite pour éviter warning pagination
-        trajets = trajets.order_by('-date_heure_depart', '-id')
+        trajets = Trajet.objects.filter(filtres).order_by('-date_heure_depart', '-id')
 
+        # Pagination
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
 
@@ -44,8 +42,8 @@ def accueil(request):
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
 
     except Exception as e:
-        # Log l'erreur ou gère-la comme tu souhaites (ici simple message 500)
-        # tu peux utiliser logging.error(str(e)) si tu as configuré un logger
+        # Pour le débogage, tu peux aussi afficher l'erreur dans la console
+        print(f"Erreur dans la vue accueil: {e}")
         return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
     
 # 👤 Inscription chauffeur
@@ -163,27 +161,37 @@ def reserver_place(request, trajet_id):
 
 # 🔍 Recherche de trajets
 def rechercher_trajet(request):
-    ville_depart = request.GET.get('ville_depart')
-    ville_arrivee = request.GET.get('ville_arrivee')
-
-    trajets = Trajet.objects.all().order_by('id')  # <- Ordre explicite garanti
-
-    if ville_depart:
-        trajets = trajets.filter(ville_depart__icontains=ville_depart)
-    if ville_arrivee:
-        trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
-
-    paginator = Paginator(trajets, 8)
-    page = request.GET.get('page')
+    ville_depart = request.GET.get('ville_depart', '')
+    ville_arrivee = request.GET.get('ville_arrivee', '')
 
     try:
-        trajets_page = paginator.page(page)
-    except PageNotAnInteger:
-        trajets_page = paginator.page(1)
-    except EmptyPage:
-        trajets_page = paginator.page(paginator.num_pages)
+        # Filtrage conditionnel
+        trajets = Trajet.objects.all()
 
-    return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
+        if ville_depart:
+            trajets = trajets.filter(ville_depart__icontains=ville_depart)
+        if ville_arrivee:
+            trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
+
+        # Tri explicite pour éviter le warning de pagination
+        trajets = trajets.order_by('-date_heure_depart', '-id')
+
+        # Pagination
+        paginator = Paginator(trajets, 8)
+        page = request.GET.get('page')
+
+        try:
+            trajets_page = paginator.page(page)
+        except PageNotAnInteger:
+            trajets_page = paginator.page(1)
+        except EmptyPage:
+            trajets_page = paginator.page(paginator.num_pages)
+
+        return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
+
+    except Exception as e:
+        # En cas d'erreur serveur, afficher une erreur 500
+        return HttpResponseServerError("Erreur serveur lors de la recherche de trajets.")
         
 # 📍 Suivi de trajet
 def suivre_trajet(request):
