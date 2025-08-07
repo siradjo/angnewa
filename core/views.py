@@ -15,20 +15,21 @@ from .forms import InscriptionChauffeurForm, CodeVerificationForm, TrajetForm, R
 
 # 🏠 Page d'accueil
 def accueil(request):
-    ville_depart = request.GET.get('ville_depart', '').strip()
-    ville_arrivee = request.GET.get('ville_arrivee', '').strip()
+    ville_depart = request.GET.get('ville_depart', '')
+    ville_arrivee = request.GET.get('ville_arrivee', '')
 
     try:
-        # Construction du filtre de recherche
-        filtres = Q()
+        # Applique le filtre
+        trajets = Trajet.objects.all()
+
         if ville_depart:
-            filtres &= Q(ville_depart__icontains=ville_depart)
+            trajets = trajets.filter(ville_depart__icontains=ville_depart)
         if ville_arrivee:
-            filtres &= Q(ville_arrivee__icontains=ville_arrivee)
+            trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
 
-        trajets = Trajet.objects.filter(filtres).order_by('-date_heure_depart', '-id')
+        # Applique un ordre strict avant la pagination
+        trajets = trajets.order_by('-date_heure_depart', '-id')
 
-        # Pagination
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
 
@@ -42,10 +43,8 @@ def accueil(request):
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
 
     except Exception as e:
-        # Pour le débogage, tu peux aussi afficher l'erreur dans la console
-        print(f"Erreur dans la vue accueil: {e}")
         return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
-    
+
 # 👤 Inscription chauffeur
 def inscription(request):
     if request.method == 'POST':
@@ -161,11 +160,10 @@ def reserver_place(request, trajet_id):
 
 # 🔍 Recherche de trajets
 def rechercher_trajet(request):
-    ville_depart = request.GET.get('ville_depart', '')
-    ville_arrivee = request.GET.get('ville_arrivee', '')
+    ville_depart = request.GET.get('ville_depart')
+    ville_arrivee = request.GET.get('ville_arrivee')
 
     try:
-        # Filtrage conditionnel
         trajets = Trajet.objects.all()
 
         if ville_depart:
@@ -173,10 +171,9 @@ def rechercher_trajet(request):
         if ville_arrivee:
             trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
 
-        # Tri explicite pour éviter le warning de pagination
+        # Ajoute un ordre strict pour éviter le warning
         trajets = trajets.order_by('-date_heure_depart', '-id')
 
-        # Pagination
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
 
@@ -190,10 +187,8 @@ def rechercher_trajet(request):
         return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
 
     except Exception as e:
-        # En cas d'erreur serveur, afficher une erreur 500
-        return HttpResponseServerError("Erreur serveur lors de la recherche de trajets.")
-        
-        
+        return HttpResponseServerError("Erreur serveur lors de la recherche.")
+
 # 📍 Suivi de trajet
 def suivre_trajet(request):
     conducteur_id = request.session.get('conducteur_id')
