@@ -1,6 +1,9 @@
 # angnewa/settings_production.py
 from pathlib import Path
 import environ
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
