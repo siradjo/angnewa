@@ -16,9 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 # 🏠 Page d'accueil
-from django.shortcuts import render
+import datetime
 
 def accueil(request):
+    print("===> Vue accueil modifiée :", datetime.datetime.now())
     return render(request, 'core/accueil.html', {})
 
 # 👤 Inscription chauffeur
