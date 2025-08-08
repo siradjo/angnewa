@@ -21,18 +21,19 @@ def accueil(request):
     ville_arrivee = request.GET.get('ville_arrivee', '')
 
     try:
-        # Filtrage conditionnel
-        if ville_depart or ville_arrivee:
-            trajets = Trajet.objects.filter(
-                Q(ville_depart__icontains=ville_depart) if ville_depart else Q(),
-                Q(ville_arrivee__icontains=ville_arrivee) if ville_arrivee else Q()
-            )
-        else:
-            trajets = Trajet.objects.all()
+        # Base queryset
+        trajets = Trajet.objects.all()
 
-        # Ordre explicite avant la pagination
+        # Ajout des filtres dynamiques
+        if ville_depart:
+            trajets = trajets.filter(ville_depart__icontains=ville_depart)
+        if ville_arrivee:
+            trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
+
+        # Tri obligatoire pour éviter UnorderedObjectListWarning
         trajets = trajets.order_by('-date_heure_depart', '-id')
 
+        # Pagination
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
 
@@ -44,11 +45,10 @@ def accueil(request):
             trajets_page = paginator.page(paginator.num_pages)
 
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
-    
-    except Exception as e:
-        logger.error(f"Erreur dans la vue accueil : {str(e)}")
-        return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
 
+    except Exception as e:
+        logger.error(f"[ERREUR] Vue accueil – {str(e)}")
+        return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
 
 # 👤 Inscription chauffeur
 def inscription(request):
@@ -170,29 +170,37 @@ def rechercher_trajet(request):
 
     try:
         trajets = Trajet.objects.all()
+        print("Trajets récupérés")
 
         if ville_depart:
             trajets = trajets.filter(ville_depart__icontains=ville_depart)
+            print(f"Filtré par ville_depart: {ville_depart}")
         if ville_arrivee:
             trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
+            print(f"Filtré par ville_arrivee: {ville_arrivee}")
 
-        # Appliquer le tri juste avant la pagination
         trajets = trajets.order_by('-date_heure_depart', '-id')
+        print("Tri effectué")
 
         paginator = Paginator(trajets, 8)
         page = request.GET.get('page')
+        print(f"Page demandée : {page}")
 
         try:
             trajets_page = paginator.page(page)
         except PageNotAnInteger:
             trajets_page = paginator.page(1)
+            print("Page non entière, retour à la première page")
         except EmptyPage:
             trajets_page = paginator.page(paginator.num_pages)
+            print("Page vide, retour à la dernière page")
 
         return render(request, 'core/rechercher_trajet.html', {'trajets': trajets_page})
 
     except Exception as e:
-        logger.error(f"Erreur dans la vue accueil : {str(e)}")
+        import traceback
+        traceback.print_exc()  # Affiche l'erreur complète dans la console
+        logger.error(f"Erreur dans la vue rechercher_trajet : {str(e)}")
         return HttpResponseServerError("Erreur serveur lors de la recherche.")
 
 # 📍 Suivi de trajet
