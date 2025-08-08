@@ -63,6 +63,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+import os
+
+TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'core', 'templates'))
+
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'UTC'
 USE_I18N = True
