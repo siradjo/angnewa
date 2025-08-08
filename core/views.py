@@ -47,8 +47,11 @@ def accueil(request):
         return render(request, 'core/accueil.html', {'trajets': trajets_page})
 
     except Exception as e:
-        logger.error(f"[ERREUR] Vue accueil – {str(e)}")
+        import traceback
+        print("ERREUR :", e)
+        print(traceback.format_exc())  # Affiche la pile complète
         return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
+
 
 # 👤 Inscription chauffeur
 def inscription(request):
