@@ -16,11 +16,42 @@ logger = logging.getLogger(__name__)
 
 
 # 🏠 Page d'accueil
-import datetime
-
 def accueil(request):
-    print("===> Vue accueil modifiée :", datetime.datetime.now())
-    return render(request, 'core/accueil.html', {})
+    ville_depart = request.GET.get('ville_depart', '')
+    ville_arrivee = request.GET.get('ville_arrivee', '')
+
+    try:
+        # Base queryset
+        trajets = Trajet.objects.all()
+
+        # Ajout des filtres dynamiques
+        if ville_depart:
+            trajets = trajets.filter(ville_depart__icontains=ville_depart)
+        if ville_arrivee:
+            trajets = trajets.filter(ville_arrivee__icontains=ville_arrivee)
+
+        # Tri obligatoire pour éviter UnorderedObjectListWarning
+        trajets = trajets.order_by('-date_heure_depart', '-id')
+
+        # Pagination
+        paginator = Paginator(trajets, 8)
+        page = request.GET.get('page')
+
+        try:
+            trajets_page = paginator.page(page)
+        except PageNotAnInteger:
+            trajets_page = paginator.page(1)
+        except EmptyPage:
+            trajets_page = paginator.page(paginator.num_pages)
+
+        return render(request, 'core/accueil.html', {'trajets': trajets_page})
+
+    except Exception as e:
+        import traceback
+        print("ERREUR :", e)
+        print(traceback.format_exc())  # Affiche la pile complète
+        return HttpResponseServerError("Erreur serveur lors du chargement des trajets.")
+
 
 # 👤 Inscription chauffeur
 def inscription(request):
