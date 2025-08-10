@@ -7,7 +7,7 @@ import re
 # ----------- Fonction pour générer un code unique -----------
 def generate_code_unique():
     return str(uuid.uuid4()).split('-')[0]
-
+    
 # ----------- Manager personnalisé pour Utilisateur -----------
 class UtilisateurManager(BaseUserManager):
     def create_user(self, telephone, password=None, **extra_fields):

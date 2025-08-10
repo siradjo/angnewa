@@ -143,7 +143,6 @@ def publier_trajet(request):
 
     return render(request, 'core/publier_trajet.html', {'form': form})
 
-    
 # 📅 Réservation de place
 def reserver_place(request, trajet_id):
     trajet = get_object_or_404(Trajet, id=trajet_id)
