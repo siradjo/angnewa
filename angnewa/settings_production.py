@@ -1,6 +1,8 @@
 from pathlib import Path
 import environ
 import logging
+import os
+
 logging.basicConfig(level=logging.DEBUG)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
