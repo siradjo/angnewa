@@ -142,6 +142,7 @@ def publier_trajet(request):
         form = TrajetForm()
 
     return render(request, 'core/publier_trajet.html', {'form': form})
+
     
 # 📅 Réservation de place
 def reserver_place(request, trajet_id):
