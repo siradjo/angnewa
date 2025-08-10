@@ -61,9 +61,15 @@ def inscription(request):
             utilisateur = form.save(commit=False)
             utilisateur.code_unique = uuid.uuid4().hex[:8].upper()
             utilisateur.save()
+            messages.success(request,
+                f"✅ Inscription réussie ! Votre code unique est : {utilisateur.code_unique}. Conservez-le précieusement.")
+            # Redirige vers la même page ou accueil, pour afficher message
             return render(request, 'core/confirmation_inscription.html', {'code': utilisateur.code_unique})
+        else:
+            messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = InscriptionChauffeurForm()
+
     return render(request, 'core/inscription.html', {'form': form})
 
 # 🔐 Vérification code (vue unifiée)
@@ -101,28 +107,42 @@ def verifier_code(request):
 # 🚗 Publication de trajet
 def publier_trajet(request):
     conducteur_id = request.session.get('conducteur_id')
-    
-    # Si le conducteur n'est pas encore authentifié via code
+
+    # Vérifier si le conducteur est authentifié via code unique
     if not conducteur_id:
         messages.warning(request, "Vous devez valider votre code unique avant de publier un trajet.")
         return redirect(f'{reverse("verifier_code")}?next=publier_trajet')
 
-    # Si l'utilisateur envoie un formulaire
+    # Récupérer l'utilisateur (conducteur)
+    try:
+        conducteur = Utilisateur.objects.get(id=conducteur_id)
+    except Utilisateur.DoesNotExist:
+        messages.error(request, "Utilisateur non trouvé, veuillez vous reconnecter.")
+        return redirect(f'{reverse("verifier_code")}?next=publier_trajet')
+
     if request.method == 'POST':
         form = TrajetForm(request.POST, request.FILES)
         if form.is_valid():
             trajet = form.save(commit=False)
-            trajet.conducteur_id = conducteur_id  # On lie le trajet au conducteur vérifié
+            trajet.conducteur = conducteur  # Lie le trajet au conducteur authentifié
             trajet.save()
-            messages.success(request, "🚗 Trajet publié avec succès !")
-            return redirect('accueil')
+
+            # Ne pas rediriger, mais afficher la modale avec infos conducteur
+            context = {
+                'form': TrajetForm(),  # formulaire vide pour nouvelle saisie
+                'success': True,
+                'nom': conducteur.nom,
+                'prenom': conducteur.prenom,
+                'code_unique': conducteur.code_unique,
+            }
+            return render(request, 'core/publier_trajet.html', context)
         else:
             messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
     else:
         form = TrajetForm()
-    
-    return render(request, 'core/publier_trajet.html', {'form': form})
 
+    return render(request, 'core/publier_trajet.html', {'form': form})
+    
 # 📅 Réservation de place
 def reserver_place(request, trajet_id):
     trajet = get_object_or_404(Trajet, id=trajet_id)

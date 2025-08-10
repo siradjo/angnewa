@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 import uuid
 from django.conf import settings
+from django.core.exceptions import ValidationError
+import re
 # ----------- Fonction pour générer un code unique -----------
 def generate_code_unique():
     return str(uuid.uuid4()).split('-')[0]
@@ -40,6 +42,17 @@ class Utilisateur(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'telephone'
     REQUIRED_FIELDS = []
+
+    def clean(self):
+        super().clean()
+        tel = self.telephone.replace(" ", "")
+        # Ajout +224 si absent
+        if not tel.startswith("+"):
+            tel = "+224" + tel
+        # Vérifie format exact +224 + 9 chiffres
+        if not re.match(r'^\+224\d{9}$', tel):
+            raise ValidationError({'telephone': "Le numéro doit être au format +224 suivi de 9 chiffres."})
+        self.telephone = tel
 
     def __str__(self):
         return f"{self.nom} {self.prenom} ({self.telephone}) - Code: {self.code_unique}"

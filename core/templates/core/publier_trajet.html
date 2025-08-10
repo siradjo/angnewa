@@ -13,7 +13,30 @@
           {% for field in form %}
             <div class="mb-3">
               <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-              {{ field }}
+
+              {% if field.name == 'ville_depart' or field.name == 'ville_arrivee' %}
+                <input list="villes_guinee" name="{{ field.name }}" id="{{ field.id_for_label }}" class="form-control" value="{{ field.value|default_if_none:'' }}" required>
+                <datalist id="villes_guinee">
+                  <option value="Conakry">
+                  <option value="Kindia">
+                  <option value="Labé">
+                  <option value="Nzérékoré">
+                  <option value="Kankan">
+                  <option value="Mamou">
+                  <option value="Faranah">
+                  <option value="Guéckédou">
+                  <option value="Boffa">
+                  <option value="Fria">
+                  <option value="Coyah">
+                  <option value="Dalaba">
+                  <option value="Dinguiraye">
+                  <option value="Lola">
+                  <option value="Yomou">
+                </datalist>
+              {% else %}
+                {{ field }}
+              {% endif %}
+
               {% if field.help_text %}
                 <small class="form-text text-muted">{{ field.help_text }}</small>
               {% endif %}
@@ -23,7 +46,7 @@
             </div>
           {% endfor %}
 
-          <!-- ✅ Aperçu image s’il y a une image sélectionnée -->
+          <!-- Aperçu image s’il y a une image sélectionnée -->
           <div id="preview-container" class="mb-3 d-none">
             <label class="form-label">Aperçu du véhicule :</label><br>
             <img id="photo-preview" src="#" alt="Aperçu" class="img-fluid rounded shadow-sm" style="max-height: 200px;">
@@ -35,6 +58,32 @@
     </div>
   </div>
 </div>
+
+{% if success %}
+<!-- Toast Bootstrap centré à l'écran -->
+<div class="position-fixed top-50 start-50 translate-middle p-3" style="z-index: 1050; min-width: 320px;">
+  <div id="successToast" class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body text-center">
+        ✅ Trajet publié avec succès !<br>
+        Conducteur : <strong>{{ prenom }} {{ nom }}</strong><br>
+        Code unique : <strong>{{ code_unique }}</strong><br>
+        Merci de conserver ce code.
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var toastEl = document.getElementById('successToast');
+    var toast = new bootstrap.Toast(toastEl, { delay: 5000 }); // 5 secondes
+    toast.show();
+  });
+</script>
+{% endif %}
+
 
 <script>
   // JS pour afficher l'aperçu de la photo
